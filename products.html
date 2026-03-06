@@ -2,34 +2,576 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Products | E209 Test Site</title>
+
+  <!-- digitalData Layer for Products Page -->
   <script>
+    // Read product ID from URL ?pid=
+    // Example: products.html?pid=LAPTOP-DELL-001
+    var params = new URLSearchParams(window.location.search);
+    var pid = params.get('pid') || 'LAPTOP-DELL-001';
+
+    // Product catalogue — simulates a real product database
+    var catalogue = {
+      'LAPTOP-DELL-001': {
+        sku:      'LAPTOP-DELL-001',
+        name:     'Dell Laptop Pro',
+        category: 'Laptops',
+        brand:    'Dell',
+        price:    '75999',
+        stock:    'in stock'
+      },
+      'AUDIO-SONY-002': {
+        sku:      'AUDIO-SONY-002',
+        name:     'Sony Headphones WH-1000',
+        category: 'Audio',
+        brand:    'Sony',
+        price:    '24999',
+        stock:    'in stock'
+      },
+      'MONITOR-SAM-003': {
+        sku:      'MONITOR-SAM-003',
+        name:     'Samsung 4K Monitor',
+        category: 'Monitors',
+        brand:    'Samsung',
+        price:    '32499',
+        stock:    'in stock'
+      }
+    };
+
+    // Load the correct product into digitalData
+    var product = catalogue[pid] || catalogue['LAPTOP-DELL-001'];
+
     window.digitalData = {
       page: {
         pageInfo: {
-          pageName: "Products:Listing",
-          pageCategory: "Products",
-          language: "en-IN"
+          pageName:     'Products:' + product.category + ':' + product.name,
+          pageCategory: 'Products',
+          subCategory:  product.category,
+          language:     'en-IN',
+          siteName:     'E209 Test Site'
         }
       },
       product: {
-        sku: "LAPTOP-DELL-001",
-        name: "Dell Laptop Pro",
-        category: "Laptops",
-        price: "75999"
+        sku:      product.sku,
+        name:     product.name,
+        category: product.category,
+        brand:    product.brand,
+        price:    product.price,
+        stock:    product.stock
+      },
+      user: {
+        loginStatus:  'logged-out',
+        customerType: 'prospect'
       }
     };
   </script>
-  <!-- Tags embed code goes here -->
+
+  <!-- Adobe Tags Embed Code goes here -->
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #eb1000;
+      color: white;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { font-size: 20px; }
+    nav a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb {
+      background: white;
+      padding: 10px 32px;
+      font-size: 13px;
+      color: #888;
+      border-bottom: 1px solid #eee;
+    }
+    .breadcrumb a { color: #eb1000; text-decoration: none; }
+    .breadcrumb span { margin: 0 6px; }
+
+    /* ── Product tabs (filter bar) ── */
+    .filter-bar {
+      background: white;
+      padding: 12px 32px;
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid #eee;
+    }
+    .filter-btn {
+      padding: 8px 18px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      color: #555;
+      text-decoration: none;
+    }
+    .filter-btn.active {
+      background: #eb1000;
+      color: white;
+      border-color: #eb1000;
+    }
+
+    /* ── Main layout ── */
+    .main {
+      max-width: 1100px;
+      margin: 32px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 32px;
+    }
+
+    /* ── Product image panel ── */
+    .product-image {
+      background: white;
+      border-radius: 8px;
+      padding: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      text-align: center;
+    }
+    .product-image .img-placeholder {
+      width: 100%;
+      height: 260px;
+      background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    .product-image .img-label {
+      font-size: 12px;
+      color: #999;
+    }
+
+    /* ── Product details panel ── */
+    .product-details {
+      background: white;
+      border-radius: 8px;
+      padding: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+    .product-details .brand {
+      font-size: 12px;
+      color: #eb1000;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .product-details h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: #222;
+    }
+    .product-details .sku-line {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 16px;
+    }
+    .product-details .price {
+      font-size: 32px;
+      font-weight: bold;
+      color: #eb1000;
+      margin-bottom: 6px;
+    }
+    .product-details .stock {
+      font-size: 13px;
+      color: #27ae60;
+      margin-bottom: 20px;
+    }
+    .divider {
+      height: 1px;
+      background: #eee;
+      margin: 20px 0;
+    }
+    .spec-row {
+      display: flex;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+    .spec-label {
+      color: #888;
+      width: 120px;
+      flex-shrink: 0;
+    }
+    .spec-value { color: #333; font-weight: 500; }
+
+    /* ── Quantity + CTA ── */
+    .qty-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .qty-label { font-size: 14px; color: #555; }
+    .qty-control {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .qty-btn {
+      width: 36px; height: 36px;
+      background: #f5f5f5;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: #333;
+    }
+    .qty-input {
+      width: 48px; height: 36px;
+      border: none;
+      text-align: center;
+      font-size: 15px;
+      border-left: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+    }
+    .btn-cart {
+      width: 100%;
+      background: #eb1000;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background .2s;
+    }
+    .btn-cart:hover { background: #c00; }
+    .btn-wishlist {
+      width: 100%;
+      background: white;
+      color: #eb1000;
+      border: 2px solid #eb1000;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-wishlist:hover {
+      background: #fff5f5;
+    }
+
+    /* ── Related products ── */
+    .related {
+      max-width: 1100px;
+      margin: 0 auto 40px;
+      padding: 0 24px;
+    }
+    .related h3 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .related-card {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.08);
+      text-align: center;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: transform .15s;
+    }
+    .related-card:hover { transform: translateY(-3px); }
+    .related-card .r-emoji { font-size: 40px; margin-bottom: 8px; }
+    .related-card h4 { font-size: 14px; margin-bottom: 6px; }
+    .related-card .r-price {
+      font-size: 16px;
+      font-weight: bold;
+      color: #eb1000;
+    }
+
+    /* ── Toast notification ── */
+    .toast {
+      display: none;
+      position: fixed;
+      bottom: 32px; left: 50%;
+      transform: translateX(-50%);
+      background: #27ae60;
+      color: white;
+      padding: 14px 28px;
+      border-radius: 6px;
+      font-size: 15px;
+      z-index: 999;
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    }
+    .toast.show { display: block; animation: fadeIn .3s; }
+    @keyframes fadeIn {
+      from { opacity:0; transform: translateX(-50%) translateY(10px); }
+      to   { opacity:1; transform: translateX(-50%) translateY(0); }
+    }
+
+    footer {
+      background: #333;
+      color: #ccc;
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Products Page</h1>
-  <p>Product: Dell Laptop Pro</p>
-  <p>SKU: LAPTOP-DELL-001</p>
-  <p>Price: ₹75,999</p>
-  <button onclick="window.location='checkout.html'">
-    Buy Now
-  </button>
-  <a href="index.html">← Back to Home</a>
+
+<!-- HEADER -->
+<header>
+  <h1>🔴 E209 Test Site</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="checkout.html">Checkout</a>
+    <a href="search.html?q=laptop">Search</a>
+    <a href="login.html">Login</a>
+  </nav>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="index.html">Home</a>
+  <span>›</span>
+  <a href="products.html">Products</a>
+  <span>›</span>
+  <span id="bc-category"></span>
+  <span>›</span>
+  <span id="bc-name"></span>
+</div>
+
+<!-- PRODUCT FILTER BAR -->
+<div class="filter-bar">
+  <a href="products.html?pid=LAPTOP-DELL-001"
+     class="filter-btn" id="tab-laptop">💻 Laptops</a>
+  <a href="products.html?pid=AUDIO-SONY-002"
+     class="filter-btn" id="tab-audio">🎧 Audio</a>
+  <a href="products.html?pid=MONITOR-SAM-003"
+     class="filter-btn" id="tab-monitor">🖥️ Monitors</a>
+</div>
+
+<!-- MAIN PRODUCT DETAIL -->
+<div class="main">
+
+  <!-- Left: Product Image -->
+  <div class="product-image">
+    <div class="img-placeholder" id="prod-emoji">💻</div>
+    <div class="img-label">Product Image Placeholder</div>
+  </div>
+
+  <!-- Right: Product Details -->
+  <div class="product-details">
+    <div class="brand" id="prod-brand">Dell</div>
+    <h2 id="prod-name">Dell Laptop Pro</h2>
+    <div class="sku-line">SKU: <span id="prod-sku">LAPTOP-DELL-001</span></div>
+    <div class="price">₹<span id="prod-price">75,999</span></div>
+    <div class="stock" id="prod-stock">✅ In Stock</div>
+
+    <div class="divider"></div>
+
+    <!-- Product Specifications -->
+    <div class="spec-row">
+      <div class="spec-label">Category</div>
+      <div class="spec-value" id="spec-cat">Laptops</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-label">Brand</div>
+      <div class="spec-value" id="spec-brand">Dell</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-label">SKU</div>
+      <div class="spec-value" id="spec-sku">LAPTOP-DELL-001</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-label">Availability</div>
+      <div class="spec-value" id="spec-stock">In Stock</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Quantity Selector -->
+    <div class="qty-row">
+      <span class="qty-label">Quantity:</span>
+      <div class="qty-control">
+        <button class="qty-btn" onclick="changeQty(-1)">−</button>
+        <input class="qty-input" type="number"
+               id="qty" value="1" min="1" max="10" readonly>
+        <button class="qty-btn" onclick="changeQty(1)">+</button>
+      </div>
+    </div>
+
+    <!-- CTAs -->
+    <button class="btn-cart" id="btn-add-cart"
+            onclick="addToCart()">
+      🛒 Add to Cart
+    </button>
+    <button class="btn-wishlist" id="btn-wishlist"
+            onclick="addToWishlist()">
+      ♡ Add to Wishlist
+    </button>
+  </div>
+</div>
+
+<!-- RELATED PRODUCTS -->
+<div class="related">
+  <h3>Related Products</h3>
+  <div class="related-grid">
+    <a href="products.html?pid=LAPTOP-DELL-001"
+       class="related-card" id="rel-1">
+      <div class="r-emoji">💻</div>
+      <h4>Dell Laptop Pro</h4>
+      <div class="r-price">₹75,999</div>
+    </a>
+    <a href="products.html?pid=AUDIO-SONY-002"
+       class="related-card" id="rel-2">
+      <div class="r-emoji">🎧</div>
+      <h4>Sony Headphones WH-1000</h4>
+      <div class="r-price">₹24,999</div>
+    </a>
+    <a href="products.html?pid=MONITOR-SAM-003"
+       class="related-card" id="rel-3">
+      <div class="r-emoji">🖥️</div>
+      <h4>Samsung 4K Monitor</h4>
+      <div class="r-price">₹32,499</div>
+    </a>
+  </div>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast"></div>
+
+<footer>
+  AD0-E209 Practice Site — Built for Adobe Analytics Certification Prep
+</footer>
+
+<script>
+  // ── Emoji map ────────────────────────────────────────────
+  var emojiMap = {
+    'LAPTOP-DELL-001':  '💻',
+    'AUDIO-SONY-002':   '🎧',
+    'MONITOR-SAM-003':  '🖥️'
+  };
+
+  // ── Populate page from digitalData ──────────────────────
+  var d  = window.digitalData;
+  var pr = d.product;
+
+  document.getElementById('prod-brand').textContent  = pr.brand;
+  document.getElementById('prod-name').textContent   = pr.name;
+  document.getElementById('prod-sku').textContent    = pr.sku;
+  document.getElementById('prod-price').textContent  =
+    Number(pr.price).toLocaleString('en-IN');
+  document.getElementById('prod-emoji').textContent  =
+    emojiMap[pr.sku] || '📦';
+
+  document.getElementById('spec-cat').textContent    = pr.category;
+  document.getElementById('spec-brand').textContent  = pr.brand;
+  document.getElementById('spec-sku').textContent    = pr.sku;
+  document.getElementById('spec-stock').textContent  = pr.stock;
+
+  // Breadcrumb
+  document.getElementById('bc-category').textContent = pr.category;
+  document.getElementById('bc-name').textContent     = pr.name;
+
+  // Active filter tab
+  var tabMap = {
+    'LAPTOP-DELL-001':  'tab-laptop',
+    'AUDIO-SONY-002':   'tab-audio',
+    'MONITOR-SAM-003':  'tab-monitor'
+  };
+  var activeTab = document.getElementById(tabMap[pr.sku]);
+  if (activeTab) activeTab.classList.add('active');
+
+  // ── Quantity control ─────────────────────────────────────
+  function changeQty(delta) {
+    var input = document.getElementById('qty');
+    var val   = parseInt(input.value) + delta;
+    if (val >= 1 && val <= 10) input.value = val;
+  }
+
+  // ── Toast helper ─────────────────────────────────────────
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+  }
+
+  // ── Add to Cart ──────────────────────────────────────────
+  // This is the KEY analytics event for E209 practice:
+  // → fires a custom link event (s.tl equivalent)
+  // → populates products string
+  // → fires event1 (add to cart event)
+  function addToCart() {
+    var qty = document.getElementById('qty').value;
+
+    // Update digitalData cart
+    window.digitalData.cart = {
+      lastAdded: {
+        sku:      pr.sku,
+        name:     pr.name,
+        category: pr.category,
+        price:    pr.price,
+        quantity: qty
+      }
+    };
+
+    // Log to console so you can verify in browser DevTools
+    console.log('═══ ADD TO CART EVENT ═══');
+    console.log('SKU:      ', pr.sku);
+    console.log('Name:     ', pr.name);
+    console.log('Category: ', pr.category);
+    console.log('Price:    ', pr.price);
+    console.log('Quantity: ', qty);
+    console.log('products string would be:',
+      ';' + pr.sku + ';' + qty + ';' + pr.price);
+
+    // ── When you add Tags later, you will fire:
+    // _satellite.track('addToCart')
+    // which will trigger your Tags Direct Call rule
+    // ─────────────────────────────────────────────
+
+    showToast('✅ Added to cart: ' + pr.name +
+              ' (Qty: ' + qty + ')');
+  }
+
+  // ── Add to Wishlist ──────────────────────────────────────
+  // Custom link tracking practice (s.tl)
+  function addToWishlist() {
+    console.log('═══ WISHLIST EVENT ═══');
+    console.log('SKU: ', pr.sku);
+    console.log('Name:', pr.name);
+
+    // _satellite.track('addToWishlist') — add later
+    showToast('♡ Added to wishlist: ' + pr.name);
+  }
+</script>
+
 </body>
 </html>
