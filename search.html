@@ -2,36 +2,769 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Search | E209 Test Site</title>
+
+  <!-- digitalData Layer for Search Page -->
   <script>
-    // Reads search term from URL ?q=
-    var params = new URLSearchParams(
-                   window.location.search);
+    // Read search term from URL ?q=
+    // Example: search.html?q=laptop
+    // This simulates getQueryParam plugin — 
+    // one of the most tested E209 concepts
+    var params     = new URLSearchParams(
+                       window.location.search);
     var searchTerm = params.get('q') || '';
+    var searchType = params.get('type') || 'keyword';
+
+    // Simulate search results count
+    var resultsMap = {
+      'laptop':      12,
+      'headphones':   8,
+      'monitor':      5,
+      'dell':         7,
+      'sony':         9,
+      'samsung':      6,
+      'gaming':       4,
+      'wireless':    11
+    };
+    var resultsCount =
+      resultsMap[searchTerm.toLowerCase()] || 3;
+
     window.digitalData = {
       page: {
         pageInfo: {
-          pageName: "Search:Results",
-          pageCategory: "Search"
+          pageName:     'Search:Results:' + searchTerm,
+          pageCategory: 'Search',
+          language:     'en-IN',
+          siteName:     'E209 Test Site'
         }
       },
       search: {
-        term: searchTerm,
-        resultsCount: "12"
+        term:         searchTerm,
+        type:         searchType,
+        resultsCount: resultsCount.toString(),
+        hasResults:   resultsCount > 0 ? 'yes' : 'no'
+      },
+      user: {
+        loginStatus:  'logged-out',
+        customerType: 'prospect'
       }
     };
+
+    console.log('═══ SEARCH DATA LAYER ═══');
+    console.log('Search Term:    ', searchTerm);
+    console.log('Results Count:  ', resultsCount);
+    console.log('pageName:       ',
+      window.digitalData.page.pageInfo.pageName);
+    console.log('Full digitalData:',
+      JSON.stringify(window.digitalData, null, 2));
   </script>
-  <!-- Tags embed code goes here -->
+
+  <!-- Adobe Tags Embed Code goes here -->
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #eb1000;
+      color: white;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { font-size: 20px; }
+    nav a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    /* ── Search bar ── */
+    .search-bar {
+      background: white;
+      padding: 20px 32px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .search-input-wrap {
+      display: flex;
+      flex: 1;
+      max-width: 600px;
+      border: 2px solid #eb1000;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .search-input-wrap input {
+      flex: 1;
+      padding: 10px 16px;
+      font-size: 15px;
+      border: none;
+      outline: none;
+    }
+    .search-input-wrap button {
+      background: #eb1000;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .search-count {
+      font-size: 13px;
+      color: #888;
+    }
+    .search-count strong { color: #333; }
+
+    /* ── Filter chips ── */
+    .filter-chips {
+      background: white;
+      padding: 12px 32px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      padding: 6px 16px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      font-size: 12px;
+      color: #555;
+      cursor: pointer;
+      background: white;
+      text-decoration: none;
+      transition: all .15s;
+    }
+    .chip:hover, .chip.active {
+      background: #eb1000;
+      color: white;
+      border-color: #eb1000;
+    }
+
+    /* ── Main layout ── */
+    .main {
+      max-width: 1100px;
+      margin: 28px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 24px;
+    }
+
+    /* ── Sidebar filters ── */
+    .sidebar {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.08);
+      padding: 20px;
+      height: fit-content;
+    }
+    .sidebar h3 {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: #888;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .filter-group { margin-bottom: 20px; }
+    .filter-group h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 10px;
+    }
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .filter-option input {
+      accent-color: #eb1000;
+      cursor: pointer;
+    }
+
+    /* ── Results area ── */
+    .results-area {}
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .results-header h2 {
+      font-size: 18px;
+      color: #333;
+    }
+    .sort-select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #555;
+      background: white;
+    }
+
+    /* ── Result cards ── */
+    .result-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.07);
+      padding: 20px;
+      margin-bottom: 14px;
+      display: grid;
+      grid-template-columns: 90px 1fr auto;
+      gap: 16px;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow .15s;
+    }
+    .result-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    }
+    .result-emoji {
+      font-size: 48px;
+      text-align: center;
+    }
+    .result-info h3 {
+      font-size: 16px;
+      margin-bottom: 4px;
+      color: #222;
+    }
+    .result-info .result-sku {
+      font-size: 11px;
+      color: #999;
+      font-family: monospace;
+      margin-bottom: 6px;
+    }
+    .result-info .result-desc {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+    }
+    .result-info .result-match {
+      display: inline-block;
+      background: #fff3cd;
+      color: #856404;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-top: 6px;
+    }
+    .result-price-col { text-align: right; }
+    .result-price {
+      font-size: 20px;
+      font-weight: bold;
+      color: #eb1000;
+      margin-bottom: 8px;
+    }
+    .btn-view {
+      background: #eb1000;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    /* ── No results ── */
+    .no-results {
+      background: white;
+      border-radius: 8px;
+      padding: 48px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,.07);
+    }
+    .no-results .nr-icon { font-size: 48px; margin-bottom: 12px; }
+    .no-results h3 { font-size: 18px; margin-bottom: 8px; }
+    .no-results p { color: #888; font-size: 14px; }
+
+    /* ── Analytics debug panel ── */
+    .analytics-panel {
+      background: #1a1a2e;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-top: 20px;
+    }
+    .analytics-panel h4 {
+      font-size: 11px;
+      color: #6c63ff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .code-line {
+      font-family: monospace;
+      font-size: 12px;
+      color: #a0d0ff;
+      margin-bottom: 7px;
+      line-height: 1.6;
+    }
+    .code-line .label { color: #6c63ff; }
+    .code-line .value { color: #80ffb0; }
+
+    /* ── Suggested searches ── */
+    .suggestions {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.07);
+      margin-top: 20px;
+    }
+    .suggestions h3 {
+      font-size: 14px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 12px;
+    }
+    .suggestion-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .sug-chip {
+      background: #f5f5f5;
+      border: 1px solid #eee;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: #555;
+      text-decoration: none;
+      transition: all .15s;
+    }
+    .sug-chip:hover {
+      background: #eb1000;
+      color: white;
+      border-color: #eb1000;
+    }
+
+    footer {
+      background: #333;
+      color: #ccc;
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+      margin-top: 40px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Search Results</h1>
-  <p>Showing results for: 
-    <strong id="term"></strong>
-  </p>
-  <a href="index.html">← Back to Home</a>
-  <script>
-    document.getElementById('term').textContent =
-      window.digitalData.search.term;
-  </script>
+
+<!-- HEADER -->
+<header>
+  <h1>🔴 E209 Test Site</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="checkout.html">Checkout</a>
+    <a href="search.html?q=laptop">Search</a>
+    <a href="login.html">Login</a>
+  </nav>
+</header>
+
+<!-- SEARCH BAR -->
+<div class="search-bar">
+  <div class="search-input-wrap">
+    <input type="text"
+           id="search-input"
+           placeholder="Search products..."
+           value="">
+    <button onclick="doSearch()">🔍 Search</button>
+  </div>
+  <div class="search-count">
+    Showing <strong id="result-count">0</strong>
+    results for
+    <strong id="result-term">"..."</strong>
+  </div>
+</div>
+
+<!-- FILTER CHIPS -->
+<div class="filter-chips">
+  <span style="font-size:13px;color:#888;
+               align-self:center">
+    Filter:
+  </span>
+  <a href="search.html?q=laptop"
+     class="chip" id="chip-laptop">💻 Laptops</a>
+  <a href="search.html?q=headphones"
+     class="chip" id="chip-headphones">🎧 Audio</a>
+  <a href="search.html?q=monitor"
+     class="chip" id="chip-monitor">🖥️ Monitors</a>
+  <a href="search.html?q=gaming"
+     class="chip" id="chip-gaming">🎮 Gaming</a>
+  <a href="search.html?q=wireless"
+     class="chip" id="chip-wireless">📶 Wireless</a>
+  <a href="search.html?q=dell"
+     class="chip" id="chip-dell">Dell</a>
+  <a href="search.html?q=sony"
+     class="chip" id="chip-sony">Sony</a>
+  <a href="search.html?q=samsung"
+     class="chip" id="chip-samsung">Samsung</a>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- LEFT: Sidebar Filters -->
+  <div class="sidebar">
+    <h3>Filters</h3>
+
+    <div class="filter-group">
+      <h4>Category</h4>
+      <label class="filter-option">
+        <input type="checkbox" checked> Laptops
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" checked> Audio
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" checked> Monitors
+      </label>
+      <label class="filter-option">
+        <input type="checkbox"> Accessories
+      </label>
+    </div>
+
+    <div class="filter-group">
+      <h4>Brand</h4>
+      <label class="filter-option">
+        <input type="checkbox" checked> Dell
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" checked> Sony
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" checked> Samsung
+      </label>
+    </div>
+
+    <div class="filter-group">
+      <h4>Price Range</h4>
+      <label class="filter-option">
+        <input type="radio" name="price"> Under ₹25,000
+      </label>
+      <label class="filter-option">
+        <input type="radio" name="price" checked>
+        ₹25,000 – ₹80,000
+      </label>
+      <label class="filter-option">
+        <input type="radio" name="price"> Above ₹80,000
+      </label>
+    </div>
+  </div>
+
+  <!-- RIGHT: Results -->
+  <div class="results-area">
+
+    <div class="results-header">
+      <h2 id="results-heading">Search Results</h2>
+      <select class="sort-select"
+              onchange="trackSort(this.value)">
+        <option>Sort: Relevance</option>
+        <option>Price: Low to High</option>
+        <option>Price: High to Low</option>
+        <option>Newest First</option>
+      </select>
+    </div>
+
+    <!-- Results list populated by JS -->
+    <div id="results-list"></div>
+
+    <!-- Analytics debug panel -->
+    <div class="analytics-panel">
+      <h4>📊 Analytics Data Layer Preview</h4>
+      <div class="code-line">
+        <span class="label">s.pageName = </span>
+        <span class="value" id="dbg-pagename"></span>
+      </div>
+      <div class="code-line">
+        <span class="label">s.eVar3 = </span>
+        <span class="value" id="dbg-searchterm">
+        </span>
+        <span style="color:#444;font-size:11px">
+          (internal search term)
+        </span>
+      </div>
+      <div class="code-line">
+        <span class="label">s.eVar4 = </span>
+        <span class="value" id="dbg-resultcount">
+        </span>
+        <span style="color:#444;font-size:11px">
+          (search results count)
+        </span>
+      </div>
+      <div class="code-line">
+        <span class="label">s.event5 = </span>
+        <span class="value">"event5"</span>
+        <span style="color:#444;font-size:11px">
+          (internal search event)
+        </span>
+      </div>
+      <div class="code-line">
+        <span class="label">getQueryParam = </span>
+        <span class="value" id="dbg-qparam"></span>
+        <span style="color:#444;font-size:11px">
+          (reads ?q= from URL)
+        </span>
+      </div>
+    </div>
+
+    <!-- Suggested searches -->
+    <div class="suggestions">
+      <h3>Try These Searches</h3>
+      <div class="suggestion-chips">
+        <a href="search.html?q=laptop"
+           class="sug-chip"
+           onclick="trackSuggest('laptop')">
+          laptop
+        </a>
+        <a href="search.html?q=headphones"
+           class="sug-chip"
+           onclick="trackSuggest('headphones')">
+          headphones
+        </a>
+        <a href="search.html?q=monitor"
+           class="sug-chip"
+           onclick="trackSuggest('monitor')">
+          monitor
+        </a>
+        <a href="search.html?q=gaming"
+           class="sug-chip"
+           onclick="trackSuggest('gaming')">
+          gaming
+        </a>
+        <a href="search.html?q=dell"
+           class="sug-chip"
+           onclick="trackSuggest('dell')">
+          dell
+        </a>
+        <a href="search.html?q=sony"
+           class="sug-chip"
+           onclick="trackSuggest('sony')">
+          sony
+        </a>
+        <a href="search.html?q=wireless"
+           class="sug-chip"
+           onclick="trackSuggest('wireless')">
+          wireless
+        </a>
+        <a href="search.html?q=samsung"
+           class="sug-chip"
+           onclick="trackSuggest('samsung')">
+          samsung
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  AD0-E209 Practice Site — Built for Adobe Analytics
+  Certification Prep
+</footer>
+
+<script>
+  var d  = window.digitalData;
+  var sr = d.search;
+
+  // ── Product catalogue for results ─────────────────────
+  var allProducts = [
+    {
+      sku:      'LAPTOP-DELL-001',
+      name:     'Dell Laptop Pro',
+      category: 'Laptops',
+      brand:    'Dell',
+      price:    75999,
+      emoji:    '💻',
+      desc:     'High-performance laptop with Intel Core i7, 16GB RAM, 512GB SSD',
+      tags:     ['laptop','dell','gaming','performance']
+    },
+    {
+      sku:      'AUDIO-SONY-002',
+      name:     'Sony Headphones WH-1000',
+      category: 'Audio',
+      brand:    'Sony',
+      price:    24999,
+      emoji:    '🎧',
+      desc:     'Industry-leading noise cancelling wireless headphones',
+      tags:     ['headphones','sony','wireless','audio']
+    },
+    {
+      sku:      'MONITOR-SAM-003',
+      name:     'Samsung 4K Monitor',
+      category: 'Monitors',
+      brand:    'Samsung',
+      price:    32499,
+      emoji:    '🖥️',
+      desc:     '27-inch 4K UHD monitor with HDR support and USB-C connectivity',
+      tags:     ['monitor','samsung','4k','gaming']
+    }
+  ];
+
+  // ── Filter results by search term ────────────────────
+  function getResults(term) {
+    if (!term) return allProducts;
+    var t = term.toLowerCase();
+    return allProducts.filter(function(p) {
+      return p.name.toLowerCase().includes(t)     ||
+             p.brand.toLowerCase().includes(t)    ||
+             p.category.toLowerCase().includes(t) ||
+             p.desc.toLowerCase().includes(t)     ||
+             p.tags.some(function(tag) {
+               return tag.includes(t);
+             });
+    });
+  }
+
+  // ── Render results ───────────────────────────────────
+  function renderResults(term) {
+    var results = getResults(term);
+    var listEl  = document.getElementById('results-list');
+
+    // Update header counts
+    document.getElementById('search-input').value = term;
+    document.getElementById('result-term').textContent =
+      '"' + (term || 'all') + '"';
+    document.getElementById('result-count').textContent =
+      results.length;
+    document.getElementById('results-heading').textContent =
+      results.length + ' Results' +
+      (term ? ' for "' + term + '"' : '');
+
+    // Highlight active chip
+    document.querySelectorAll('.chip')
+      .forEach(function(c) {
+        c.classList.remove('active');
+      });
+    var activeChip = document.getElementById(
+      'chip-' + term.toLowerCase());
+    if (activeChip) activeChip.classList.add('active');
+
+    if (results.length === 0) {
+      listEl.innerHTML =
+        '<div class="no-results">' +
+          '<div class="nr-icon">🔍</div>' +
+          '<h3>No results for "' + term + '"</h3>' +
+          '<p>Try a different search term above</p>' +
+        '</div>';
+      return;
+    }
+
+    listEl.innerHTML = results.map(function(p) {
+      return (
+        '<a href="products.html?pid=' + p.sku + '" ' +
+           'class="result-card" ' +
+           'onclick="trackResultClick(\'' +
+             p.sku + '\',\'' + p.name + '\')">' +
+          '<div class="result-emoji">' + p.emoji + '</div>' +
+          '<div class="result-info">' +
+            '<h3>' + p.name + '</h3>' +
+            '<div class="result-sku">SKU: ' + p.sku + '</div>' +
+            '<div class="result-desc">' + p.desc + '</div>' +
+            '<span class="result-match">' +
+              p.category + ' · ' + p.brand +
+            '</span>' +
+          '</div>' +
+          '<div class="result-price-col">' +
+            '<div class="result-price">₹' +
+              p.price.toLocaleString('en-IN') +
+            '</div>' +
+            '<span class="btn-view">View →</span>' +
+          '</div>' +
+        '</a>'
+      );
+    }).join('');
+  }
+
+  // ── Populate Analytics debug panel ───────────────────
+  function updateDebugPanel(term, count) {
+    document.getElementById('dbg-pagename').textContent =
+      '"Search:Results:' + term + '"';
+    document.getElementById('dbg-searchterm').textContent =
+      '"' + term + '"';
+    document.getElementById('dbg-resultcount').textContent =
+      '"' + count + '"';
+    document.getElementById('dbg-qparam').textContent =
+      'getQueryParam("q") → "' + term + '"';
+  }
+
+  // ── New search from search bar ────────────────────────
+  function doSearch() {
+    var term = document.getElementById(
+                 'search-input').value.trim();
+    if (!term) return;
+    // Navigate to new URL — simulates real search
+    // This updates ?q= parameter in URL
+    // getQueryParam plugin reads this for Analytics
+    window.location.href = 'search.html?q=' +
+      encodeURIComponent(term);
+  }
+
+  // Allow Enter key in search box
+  document.getElementById('search-input')
+    .addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doSearch();
+    });
+
+  // ── Track result click (custom link) ─────────────────
+  // s.tl() equivalent — tracks which result was clicked
+  // without firing a new page view
+  function trackResultClick(sku, name) {
+    console.log('═══ SEARCH RESULT CLICK ═══');
+    console.log('Clicked SKU: ', sku);
+    console.log('Clicked Name:', name);
+    console.log('s.tl() → linkType: o');
+    console.log('         linkName: Search Result Click -',
+                name);
+    // _satellite.track('searchResultClick') — add later
+  }
+
+  // ── Track sort change (custom link) ──────────────────
+  function trackSort(sortValue) {
+    console.log('═══ SORT CHANGE EVENT ═══');
+    console.log('Sort selected:', sortValue);
+    console.log('s.tl() → linkType: o');
+    console.log('         linkName: Search Sort -', sortValue);
+    // _satellite.track('searchSort') — add later
+  }
+
+  // ── Track suggested search click ─────────────────────
+  function trackSuggest(term) {
+    console.log('═══ SUGGESTED SEARCH CLICK ═══');
+    console.log('Suggested term:', term);
+    // _satellite.track('suggestedSearch') — add later
+  }
+
+  // ── Initialise page ───────────────────────────────────
+  var currentTerm = sr.term;
+  renderResults(currentTerm);
+  updateDebugPanel(
+    currentTerm,
+    getResults(currentTerm).length
+  );
+</script>
+
 </body>
 </html>
