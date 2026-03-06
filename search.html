@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search | E209 Test Site</title>
+  <script>
+    // Reads search term from URL ?q=
+    var params = new URLSearchParams(
+                   window.location.search);
+    var searchTerm = params.get('q') || '';
+    window.digitalData = {
+      page: {
+        pageInfo: {
+          pageName: "Search:Results",
+          pageCategory: "Search"
+        }
+      },
+      search: {
+        term: searchTerm,
+        resultsCount: "12"
+      }
+    };
+  </script>
+  <!-- Tags embed code goes here -->
+</head>
+<body>
+  <h1>Search Results</h1>
+  <p>Showing results for: 
+    <strong id="term"></strong>
+  </p>
+  <a href="index.html">← Back to Home</a>
+  <script>
+    document.getElementById('term').textContent =
+      window.digitalData.search.term;
+  </script>
+</body>
+</html>
