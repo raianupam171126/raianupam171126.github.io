@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout | E209 Test Site</title>
+  <script>
+    window.digitalData = {
+      page: {
+        pageInfo: {
+          pageName: "Checkout:Confirmation",
+          pageCategory: "Checkout"
+        }
+      },
+      transaction: {
+        transactionID: "TXN-" + Date.now(),
+        total: "75999",
+        products: [
+          { sku: "LAPTOP-DELL-001",
+            name: "Dell Laptop Pro",
+            category: "Laptops",
+            quantity: "1",
+            price: "75999" }
+        ]
+      }
+    };
+  </script>
+  <!-- Tags embed code goes here -->
+</head>
+<body>
+  <h1>✅ Order Confirmed!</h1>
+  <p>Transaction ID: 
+    <span id="txnID"></span>
+  </p>
+  <p>Product: Dell Laptop Pro</p>
+  <p>Amount: ₹75,999</p>
+  <a href="index.html">← Back to Home</a>
+  <script>
+    document.getElementById('txnID').textContent =
+      window.digitalData.transaction.transactionID;
+  </script>
+</body>
+</html>
