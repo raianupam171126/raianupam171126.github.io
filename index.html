@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adobe Analytics E209 - Test Site</title>
+
+  <!-- digitalData Layer — simulates real enterprise data layer -->
+  <script>
+    window.digitalData = {
+      page: {
+        pageInfo: {
+          pageName: "Home Page",
+          pageCategory: "Homepage",
+          language: "en-IN",
+          siteName: "E209 Test Site"
+        }
+      },
+      user: {
+        loginStatus: "logged-out",
+        customerType: "prospect"
+      }
+    };
+  </script>
+
+  <!-- Adobe Tags Embed Code goes here (you will add this later) -->
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f5f5f5;
+    }
+    header {
+      background: #eb1000;
+      color: white;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { margin: 0; font-size: 20px; }
+    nav a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .hero {
+      background: #1a1a2e;
+      color: white;
+      padding: 60px 32px;
+      text-align: center;
+    }
+    .hero h2 { font-size: 32px; margin-bottom: 12px; }
+    .hero p { font-size: 16px; color: #ccc; margin-bottom: 28px; }
+    .btn-primary {
+      background: #eb1000;
+      color: white;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      margin: 8px;
+      display: inline-block;
+    }
+    .btn-secondary {
+      background: transparent;
+      color: white;
+      padding: 13px 32px;
+      border: 2px solid white;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      margin: 8px;
+      display: inline-block;
+    }
+    .products {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+    .products h3 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .product-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+      text-align: center;
+    }
+    .product-card h4 { margin: 0 0 8px; color: #333; }
+    .product-card .price {
+      font-size: 20px;
+      font-weight: bold;
+      color: #eb1000;
+      margin-bottom: 12px;
+    }
+    .product-card .sku {
+      font-size: 11px;
+      color: #999;
+      margin-bottom: 12px;
+    }
+    .btn-add {
+      background: #eb1000;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      width: 100%;
+    }
+    .links-section {
+      max-width: 1100px;
+      margin: 0 auto 40px;
+      padding: 0 24px;
+    }
+    .links-section h3 { font-size: 22px; color: #333; }
+    .link-row { display: flex; gap: 20px; flex-wrap: wrap; }
+    .link-row a {
+      background: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #333;
+      box-shadow: 0 2px 6px rgba(0,0,0,.1);
+      font-size: 14px;
+    }
+    footer {
+      background: #333;
+      color: #ccc;
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER & NAV -->
+<header>
+  <h1>🔴 E209 Test Site</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="checkout.html">Checkout</a>
+    <a href="search.html?q=laptop">Search</a>
+    <a href="login.html">Login</a>
+  </nav>
+</header>
+
+<!-- HERO SECTION -->
+<div class="hero">
+  <h2>Adobe Analytics Implementation Lab</h2>
+  <p>This site is built for AD0-E209 hands-on practice</p>
+  <a href="products.html" class="btn-primary" id="cta-shop">
+    Shop Now
+  </a>
+  <a href="login.html" class="btn-secondary" id="cta-login">
+    Login
+  </a>
+</div>
+
+<!-- PRODUCT LISTING -->
+<div class="products">
+  <h3>Featured Products</h3>
+  <div class="product-grid">
+
+    <div class="product-card">
+      <h4>Dell Laptop Pro</h4>
+      <div class="sku">SKU: LAPTOP-DELL-001</div>
+      <div class="price">₹75,999</div>
+      <button class="btn-add"
+        data-sku="LAPTOP-DELL-001"
+        data-name="Dell Laptop Pro"
+        data-price="75999"
+        data-category="Laptops"
+        onclick="addToCart(this)">
+        Add to Cart
+      </button>
+    </div>
+
+    <div class="product-card">
+      <h4>Sony Headphones WH-1000</h4>
+      <div class="sku">SKU: AUDIO-SONY-002</div>
+      <div class="price">₹24,999</div>
+      <button class="btn-add"
+        data-sku="AUDIO-SONY-002"
+        data-name="Sony Headphones WH-1000"
+        data-price="24999"
+        data-category="Audio"
+        onclick="addToCart(this)">
+        Add to Cart
+      </button>
+    </div>
+
+    <div class="product-card">
+      <h4>Samsung 4K Monitor</h4>
+      <div class="sku">SKU: MONITOR-SAM-003</div>
+      <div class="price">₹32,499</div>
+      <button class="btn-add"
+        data-sku="MONITOR-SAM-003"
+        data-name="Samsung 4K Monitor"
+        data-price="32499"
+        data-category="Monitors"
+        onclick="addToCart(this)">
+        Add to Cart
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- LINK TRACKING TEST SECTION -->
+<div class="links-section">
+  <h3>Link Tracking Practice</h3>
+  <div class="link-row">
+
+    <!-- Exit link — should fire lnk_e in Analytics -->
+    <a href="https://www.adobe.com" 
+       id="exit-adobe" 
+       target="_blank">
+      🔗 Visit Adobe.com (Exit Link)
+    </a>
+
+    <!-- Download link — should fire lnk_d -->
+    <a href="assets/sample-brochure.pdf" 
+       id="download-brochure">
+      📄 Download Brochure (PDF)
+    </a>
+
+    <!-- Custom link — fires via s.tl() -->
+    <a href="#" 
+       id="custom-link-promo"
+       onclick="trackPromo(); return false;">
+      🎯 View Promo (Custom Link)
+    </a>
+
+    <!-- External link to government site -->
+    <a href="https://www.india.gov.in" 
+       id="exit-gov"
+       target="_blank">
+      🏛️ India.gov.in (Exit Link)
+    </a>
+
+  </div>
+</div>
+
+<footer>
+  AD0-E209 Practice Site — Built for Adobe Analytics Certification Prep
+</footer>
+
+<script>
+  // ── Data layer helpers ───────────────────────────────────
+  
+  // Simulates Add to Cart event
+  function addToCart(btn) {
+    var sku      = btn.getAttribute('data-sku');
+    var name     = btn.getAttribute('data-name');
+    var price    = btn.getAttribute('data-price');
+    var category = btn.getAttribute('data-category');
+
+    // Update digital data layer
+    window.digitalData.cart = {
+      lastAdded: { sku: sku, name: name, 
+                   price: price, category: category }
+    };
+
+    // This is where you will fire your Tags rule
+    // via _satellite.track('addToCart') later
+    console.log('Add to Cart fired:', sku, price);
+    alert('Added to cart: ' + name + 
+          '\nSKU: ' + sku + 
+          '\nPrice: ₹' + price);
+  }
+
+  // Simulates custom promo link tracking
+  function trackPromo() {
+    console.log('Promo link clicked — custom link event');
+    // You will replace this with s.tl() via Tags rule
+    alert('Custom link tracked — check Debugger!');
+  }
+</script>
+
+</body>
+</html>
