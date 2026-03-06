@@ -2,41 +2,672 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout | E209 Test Site</title>
+
+  <!-- digitalData Layer for Checkout Page -->
   <script>
+    // Generate unique transaction ID
+    var txnID = 'TXN-' + Date.now();
+
+    // Simulates cart passed from products page
+    // In real implementation this comes from 
+    // your cart/session system
+    var cartItems = [
+      {
+        sku:      'LAPTOP-DELL-001',
+        name:     'Dell Laptop Pro',
+        category: 'Laptops',
+        brand:    'Dell',
+        price:    '75999',
+        quantity: '1'
+      },
+      {
+        sku:      'AUDIO-SONY-002',
+        name:     'Sony Headphones WH-1000',
+        category: 'Audio',
+        brand:    'Sony',
+        price:    '24999',
+        quantity: '2'
+      }
+    ];
+
+    // Calculate order total
+    var orderTotal = cartItems.reduce(function(sum, item) {
+      return sum + (parseFloat(item.price) * 
+                    parseInt(item.quantity));
+    }, 0);
+
+    // Build products string — THE most important
+    // variable for E209 exam
+    // Format: Category;SKU;Qty;Price;Events;MerchEvar
+    var productsString = cartItems.map(function(item) {
+      return item.category + ';' +
+             item.sku      + ';' +
+             item.quantity + ';' +
+             (parseFloat(item.price) * 
+              parseInt(item.quantity));
+    }).join(',');
+
     window.digitalData = {
       page: {
         pageInfo: {
-          pageName: "Checkout:Confirmation",
-          pageCategory: "Checkout"
+          pageName:     'Checkout:Order Confirmation',
+          pageCategory: 'Checkout',
+          language:     'en-IN',
+          siteName:     'E209 Test Site'
         }
       },
       transaction: {
-        transactionID: "TXN-" + Date.now(),
-        total: "75999",
-        products: [
-          { sku: "LAPTOP-DELL-001",
-            name: "Dell Laptop Pro",
-            category: "Laptops",
-            quantity: "1",
-            price: "75999" }
-        ]
+        transactionID: txnID,
+        total:         orderTotal.toString(),
+        tax:           Math.round(orderTotal * 0.18).toString(),
+        shipping:      '99',
+        currency:      'INR',
+        paymentMethod: 'Credit Card',
+        products:      cartItems
+      },
+      // This is exactly what Tags Data Elements
+      // will read to build the Analytics beacon
+      analytics: {
+        productsString: productsString,
+        events:         'purchase',
+        transactionID:  txnID
+      },
+      user: {
+        loginStatus:  'logged-in',
+        customerType: 'existing'
       }
     };
+
+    // Log to console — verify your data layer
+    // is correct before Tags reads it
+    console.log('═══ CHECKOUT DATA LAYER ═══');
+    console.log('Transaction ID:', txnID);
+    console.log('Order Total:   ₹' + orderTotal);
+    console.log('Products String:', productsString);
+    console.log('Full digitalData:', 
+                JSON.stringify(window.digitalData, null, 2));
   </script>
-  <!-- Tags embed code goes here -->
+
+  <!-- Adobe Tags Embed Code goes here -->
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #eb1000;
+      color: white;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { font-size: 20px; }
+    nav a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      background: white;
+      padding: 16px 32px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+    }
+    .progress-step {
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+      color: #aaa;
+    }
+    .progress-step .step-circle {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #eee;
+      color: #aaa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .progress-step.done .step-circle {
+      background: #27ae60;
+      color: white;
+    }
+    .progress-step.active .step-circle {
+      background: #eb1000;
+      color: white;
+    }
+    .progress-step.active {
+      color: #eb1000;
+      font-weight: bold;
+    }
+    .progress-line {
+      width: 60px; height: 2px;
+      background: #eee;
+      margin: 0 8px;
+      align-self: center;
+    }
+    .progress-line.done { background: #27ae60; }
+
+    /* ── Main layout ── */
+    .main {
+      max-width: 1000px;
+      margin: 32px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 24px;
+    }
+
+    /* ── Confirmation box ── */
+    .confirmation-box {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      overflow: hidden;
+    }
+    .conf-header {
+      background: #27ae60;
+      color: white;
+      padding: 24px 28px;
+      text-align: center;
+    }
+    .conf-header .check-icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+    .conf-header h2 {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+    .conf-header p {
+      font-size: 14px;
+      opacity: .85;
+    }
+    .conf-body { padding: 28px; }
+
+    /* ── Transaction info ── */
+    .txn-info {
+      background: #f8f8f8;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    .txn-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .txn-row:last-child { margin-bottom: 0; }
+    .txn-label { color: #888; }
+    .txn-value {
+      font-weight: 600;
+      color: #333;
+      font-family: monospace;
+    }
+
+    /* ── Order items ── */
+    .order-items h3 {
+      font-size: 15px;
+      margin-bottom: 14px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .order-item:last-child { border-bottom: none; }
+    .item-emoji {
+      font-size: 32px;
+      width: 48px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .item-details { flex: 1; }
+    .item-details .item-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+    .item-details .item-sku {
+      font-size: 11px;
+      color: #999;
+      font-family: monospace;
+    }
+    .item-details .item-qty {
+      font-size: 12px;
+      color: #666;
+      margin-top: 2px;
+    }
+    .item-price {
+      font-size: 15px;
+      font-weight: bold;
+      color: #eb1000;
+      text-align: right;
+    }
+
+    /* ── Analytics data box ── */
+    .analytics-box {
+      background: #1a1a2e;
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-top: 24px;
+    }
+    .analytics-box h4 {
+      font-size: 11px;
+      color: #6c63ff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .code-line {
+      font-family: monospace;
+      font-size: 12px;
+      color: #a0d0ff;
+      margin-bottom: 6px;
+      line-height: 1.6;
+      word-break: break-all;
+    }
+    .code-line .label {
+      color: #6c63ff;
+      margin-right: 6px;
+    }
+    .code-line .value { color: #80ffb0; }
+
+    /* ── Order summary sidebar ── */
+    .order-summary {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      padding: 24px;
+      height: fit-content;
+    }
+    .order-summary h3 {
+      font-size: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: #555;
+    }
+    .summary-row.total {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      padding-top: 12px;
+      border-top: 2px solid #f0f0f0;
+      margin-top: 8px;
+    }
+    .summary-row.total span:last-child {
+      color: #eb1000;
+    }
+
+    /* ── Products string panel ── */
+    .products-string-panel {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      padding: 24px;
+      margin-top: 24px;
+    }
+    .products-string-panel h3 {
+      font-size: 15px;
+      margin-bottom: 6px;
+      color: #eb1000;
+    }
+    .products-string-panel p {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 14px;
+    }
+    .ps-box {
+      background: #1a1a2e;
+      border-radius: 6px;
+      padding: 14px 16px;
+      font-family: monospace;
+      font-size: 13px;
+      color: #80ffb0;
+      word-break: break-all;
+      line-height: 1.7;
+    }
+    .ps-label {
+      font-size: 10px;
+      color: #6c63ff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    /* ── Action buttons ── */
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .btn-primary {
+      background: #eb1000;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+    }
+    .btn-secondary {
+      background: white;
+      color: #333;
+      border: 2px solid #ddd;
+      padding: 11px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+    }
+
+    footer {
+      background: #333;
+      color: #ccc;
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+      margin-top: 40px;
+    }
+  </style>
 </head>
 <body>
-  <h1>✅ Order Confirmed!</h1>
-  <p>Transaction ID: 
-    <span id="txnID"></span>
-  </p>
-  <p>Product: Dell Laptop Pro</p>
-  <p>Amount: ₹75,999</p>
-  <a href="index.html">← Back to Home</a>
-  <script>
-    document.getElementById('txnID').textContent =
-      window.digitalData.transaction.transactionID;
-  </script>
+
+<!-- HEADER -->
+<header>
+  <h1>🔴 E209 Test Site</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="checkout.html">Checkout</a>
+    <a href="search.html?q=laptop">Search</a>
+    <a href="login.html">Login</a>
+  </nav>
+</header>
+
+<!-- CHECKOUT PROGRESS BAR -->
+<div class="progress-bar">
+  <div class="progress-step done">
+    <div class="step-circle">✓</div> Cart
+  </div>
+  <div class="progress-line done"></div>
+  <div class="progress-step done">
+    <div class="step-circle">✓</div> Payment
+  </div>
+  <div class="progress-line done"></div>
+  <div class="progress-step active">
+    <div class="step-circle">3</div> Confirmation
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- LEFT: Order Confirmation -->
+  <div class="confirmation-box">
+
+    <!-- Success Header -->
+    <div class="conf-header">
+      <div class="check-icon">✅</div>
+      <h2>Order Confirmed!</h2>
+      <p>Thank you for your purchase. 
+         Your order has been placed successfully.</p>
+    </div>
+
+    <div class="conf-body">
+
+      <!-- Transaction Details -->
+      <div class="txn-info">
+        <div class="txn-row">
+          <span class="txn-label">Transaction ID</span>
+          <span class="txn-value" id="disp-txnid"></span>
+        </div>
+        <div class="txn-row">
+          <span class="txn-label">Payment Method</span>
+          <span class="txn-value">Credit Card</span>
+        </div>
+        <div class="txn-row">
+          <span class="txn-label">Currency</span>
+          <span class="txn-value">INR</span>
+        </div>
+        <div class="txn-row">
+          <span class="txn-label">Status</span>
+          <span class="txn-value" 
+                style="color:#27ae60">CONFIRMED</span>
+        </div>
+      </div>
+
+      <!-- Order Items -->
+      <div class="order-items">
+        <h3>Items Ordered</h3>
+        <div id="items-list"></div>
+      </div>
+
+      <!-- Analytics Debug Panel -->
+      <!-- This shows exactly what Tags will read
+           from digitalData to build the beacon -->
+      <div class="analytics-box">
+        <h4>📊 Analytics Data Layer Preview</h4>
+        <div class="code-line">
+          <span class="label">s.events =</span>
+          <span class="value">"purchase"</span>
+        </div>
+        <div class="code-line">
+          <span class="label">s.transactionID =</span>
+          <span class="value" id="dbg-txn"></span>
+        </div>
+        <div class="code-line">
+          <span class="label">s.products =</span>
+          <span class="value" id="dbg-products"></span>
+        </div>
+        <div class="code-line">
+          <span class="label">s.pageName =</span>
+          <span class="value">"Checkout:Order Confirmation"</span>
+        </div>
+        <div class="code-line">
+          <span class="label">s.eVar1 =</span>
+          <span class="value">"Checkout"</span>
+          <span style="color:#666;font-size:11px">
+            (pageCategory)
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: Order Summary Sidebar -->
+  <div>
+    <div class="order-summary">
+      <h3>🧾 Order Summary</h3>
+      <div id="summary-items"></div>
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span id="sum-subtotal"></span>
+      </div>
+      <div class="summary-row">
+        <span>GST (18%)</span>
+        <span id="sum-tax"></span>
+      </div>
+      <div class="summary-row">
+        <span>Shipping</span>
+        <span>₹99</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total</span>
+        <span id="sum-total"></span>
+      </div>
+      <div class="action-buttons">
+        <a href="index.html" class="btn-primary">
+          🛍️ Shop More
+        </a>
+        <a href="#" class="btn-secondary"
+           onclick="downloadInvoice()">
+          📄 Invoice
+        </a>
+      </div>
+    </div>
+
+    <!-- Products String Practice Panel -->
+    <!-- This is the E209 exam's most tested
+         variable — study this carefully -->
+    <div class="products-string-panel">
+      <h3>📦 Products String (s.products)</h3>
+      <p>This is exactly what fires in your
+         Analytics beacon on purchase pages</p>
+      <div class="ps-label">Format: 
+        Category;SKU;Qty;Price;Events;MerchEvar
+      </div>
+      <div class="ps-box" id="ps-display"></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  AD0-E209 Practice Site — Built for Adobe Analytics 
+  Certification Prep
+</footer>
+
+<script>
+  var d   = window.digitalData;
+  var txn = d.transaction;
+
+  // ── Emoji map ─────────────────────────────────────────
+  var emojiMap = {
+    'LAPTOP-DELL-001': '💻',
+    'AUDIO-SONY-002':  '🎧',
+    'MONITOR-SAM-003': '🖥️'
+  };
+
+  // ── Populate Transaction ID ───────────────────────────
+  document.getElementById('disp-txnid').textContent =
+    txn.transactionID;
+  document.getElementById('dbg-txn').textContent =
+    '"' + txn.transactionID + '"';
+
+  // ── Populate Order Items ──────────────────────────────
+  var itemsHTML = '';
+  txn.products.forEach(function(item) {
+    var lineTotal = parseFloat(item.price) *
+                    parseInt(item.quantity);
+    itemsHTML +=
+      '<div class="order-item">' +
+        '<div class="item-emoji">' +
+          (emojiMap[item.sku] || '📦') +
+        '</div>' +
+        '<div class="item-details">' +
+          '<div class="item-name">' + item.name + '</div>'+
+          '<div class="item-sku">SKU: ' + item.sku +'</div>'+
+          '<div class="item-qty">Qty: ' +item.quantity+'</div>'+
+        '</div>' +
+        '<div class="item-price">₹' +
+          lineTotal.toLocaleString('en-IN') +
+        '</div>' +
+      '</div>';
+  });
+  document.getElementById('items-list').innerHTML =
+    itemsHTML;
+
+  // ── Populate Order Summary Sidebar ───────────────────
+  var summaryHTML = '';
+  txn.products.forEach(function(item) {
+    summaryHTML +=
+      '<div class="summary-row">' +
+        '<span>' + item.name +
+          ' ×' + item.quantity + '</span>' +
+        '<span>₹' +
+          (parseFloat(item.price) *
+           parseInt(item.quantity))
+          .toLocaleString('en-IN') +
+        '</span>' +
+      '</div>';
+  });
+  document.getElementById('summary-items').innerHTML =
+    summaryHTML;
+
+  var subtotal = parseFloat(txn.total);
+  var tax      = Math.round(subtotal * 0.18);
+  var grandTotal = subtotal + tax + 99;
+
+  document.getElementById('sum-subtotal').textContent =
+    '₹' + subtotal.toLocaleString('en-IN');
+  document.getElementById('sum-tax').textContent =
+    '₹' + tax.toLocaleString('en-IN');
+  document.getElementById('sum-total').textContent =
+    '₹' + grandTotal.toLocaleString('en-IN');
+
+  // ── Build & Display Products String ──────────────────
+  // THIS IS THE CORE E209 EXERCISE
+  // Format: Category;SKU;Qty;Price;Events;MerchEvar
+  var psLines = txn.products.map(function(item) {
+    var lineTotal = parseFloat(item.price) *
+                    parseInt(item.quantity);
+    return item.category + ';' +   // Category
+           item.sku      + ';' +   // Product SKU
+           item.quantity + ';' +   // Quantity
+           lineTotal;              // Revenue (price × qty)
+  });
+  var productsString = psLines.join(',');
+
+  document.getElementById('ps-display').textContent =
+    productsString;
+  document.getElementById('dbg-products').textContent =
+    '"' + productsString + '"';
+
+  // Log everything for DevTools practice
+  console.log('═══ PURCHASE EVENT ═══');
+  console.log('s.events        =', '"purchase"');
+  console.log('s.transactionID =', '"' + txn.transactionID + '"');
+  console.log('s.products      =', '"' + productsString + '"');
+  console.log('s.pageName      =',
+    '"' + d.page.pageInfo.pageName + '"');
+  console.log('Order Total     = ₹' + subtotal);
+
+  // ── Invoice download (custom link practice) ───────────
+  function downloadInvoice() {
+    console.log('═══ CUSTOM LINK: Invoice Download ═══');
+    console.log('s.tl() → linkType: o, linkName: Invoice Download');
+    // _satellite.track('invoiceDownload') — add later
+    alert('Invoice download tracked!\nCheck console for s.tl() details.');
+  }
+</script>
+
 </body>
 </html>
